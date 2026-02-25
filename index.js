@@ -1,10 +1,12 @@
 const express = require("express");
 const app = express();
 const snapsave = require("./snapsave-downloader/src/index");
-const port = 3000;
+
+// استخدم PORT من Vercel (أو 3000 لو محلي)
+const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  res.json({ message: "Hello World!" });
+  res.json({ message: "Instagram Downloader API ✅ - جاهز للاستخدام" });
 });
 
 app.get("/igdl", async (req, res) => {
@@ -16,13 +18,27 @@ app.get("/igdl", async (req, res) => {
     }
 
     const downloadedURL = await snapsave(url);
-    res.json({ url: downloadedURL });
+    
+    res.json({ 
+      success: true, 
+      url: downloadedURL 
+    });
   } catch (err) {
     console.error("Error:", err.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error",
+      message: err.message 
+    });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+// مهم جداً لـ Vercel (Serverless)
+module.exports = app;
+
+// فقط لو تبي تشغله محلياً (اختياري)
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`✅ Server running at http://localhost:${port}`);
+  });
+}
